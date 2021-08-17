@@ -1,7 +1,7 @@
 package menu
 
 type MenuPrinter interface {
-	Initialize() error
+	Initialize(string) error
 	Start()
 	SetDeamons(...func())
 }

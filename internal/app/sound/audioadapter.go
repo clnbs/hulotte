@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
-	"os"
 
 	"github.com/bobertlo/go-mpg123/mpg123"
 	"github.com/gordonklaus/portaudio"
@@ -27,8 +25,8 @@ func NewAudio() *Audio {
 	return &Audio{}
 }
 
-func (a *Audio) Initialize() error {
-	config, err := loadConfig()
+func (a *Audio) Initialize(path string) error {
+	config, err := loadConfig(path)
 	if err != nil {
 		return err
 	}
@@ -94,13 +92,8 @@ func (a *Audio) Trigger() error {
 	return nil
 }
 
-func loadConfig() (*AudioConfig, error) {
-	homeDir := os.Getenv("HOME")
-	if homeDir == "" {
-		return nil, errors.New("HOME env variable is empty, not supported")
-	}
-	configFilePath := homeDir + "/.hulotte/config.json"
-	configData, err := ioutil.ReadFile(configFilePath)
+func loadConfig(path string) (*AudioConfig, error) {
+	configData, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

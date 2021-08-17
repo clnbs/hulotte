@@ -4,9 +4,7 @@ package notify
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
-	"os"
 
 	"github.com/gen2brain/beeep"
 )
@@ -27,8 +25,8 @@ func NewBeeeeep() *Beeeeep {
 	return &Beeeeep{}
 }
 
-func (b *Beeeeep) Initialize() error {
-	config, err := loadConfig()
+func (b *Beeeeep) Initialize(path string) error {
+	config, err := loadConfig(path)
 	if err != nil {
 		return err
 	}
@@ -48,13 +46,8 @@ func (b *Beeeeep) Trigger() error {
 	return nil
 }
 
-func loadConfig() (*BeeeeepConfig, error) {
-	homeDir := os.Getenv("HOME")
-	if homeDir == "" {
-		return nil, errors.New("HOME env variable is empty, not supported")
-	}
-	configFilePath := homeDir + "/.hulotte/config.json"
-	configData, err := ioutil.ReadFile(configFilePath)
+func loadConfig(path string) (*BeeeeepConfig, error) {
+	configData, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

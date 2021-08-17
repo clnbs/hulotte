@@ -1,6 +1,6 @@
 package notify
 
 type Notifyer interface {
-	Initialize() error
+	Initialize(path string) error
 	Trigger() error
 }

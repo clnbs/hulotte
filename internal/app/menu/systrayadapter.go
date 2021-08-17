@@ -3,7 +3,6 @@ package menu
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"image"
 	"image/png"
 	"io/ioutil"
@@ -23,8 +22,8 @@ type SystrayMenuConfig struct {
 	MenuTooltip string `json:"menu_tooltip"`
 }
 
-func (sm *SystrayMenu) Initialize() error {
-	config, err := loadConfig()
+func (sm *SystrayMenu) Initialize(path string) error {
+	config, err := loadConfig(path)
 	if err != nil {
 		return err
 	}
@@ -59,13 +58,8 @@ func (sm *SystrayMenu) SetDeamons(handlers ...func()) {
 	sm.handlers = handlers
 }
 
-func loadConfig() (*SystrayMenuConfig, error) {
-	homeDir := os.Getenv("HOME")
-	if homeDir == "" {
-		return nil, errors.New("HOME env variable is empty, not supported")
-	}
-	configFilePath := homeDir + "/.hulotte/config.json"
-	configData, err := ioutil.ReadFile(configFilePath)
+func loadConfig(path string) (*SystrayMenuConfig, error) {
+	configData, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

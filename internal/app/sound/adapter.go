@@ -1,6 +1,6 @@
 package sound
 
 type SoundPlayer interface {
-	Initialize() error
+	Initialize(path string) error
 	Trigger() error
 }
