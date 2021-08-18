@@ -1,5 +1,7 @@
 github.com/bobertlo/go-mpg123 v0.0.0-20181204193349-1720ab305de3 h1:Lfltjwn5CNPwH5it5Epa/hP87LmOOOWUVHFSxuF9cWA=
 github.com/bobertlo/go-mpg123 v0.0.0-20181204193349-1720ab305de3/go.mod h1:hYYMz5pQEf6ZXhHkCwaV24ssUx9HxjXJichLbaNOVgw=
+github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21 h1:tuijfIjZyjZaHq9xDUh0tNitwXshJpbLkqMOJv4H3do=
+github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21/go.mod h1:po7NpZ/QiTKzBKyrsEAxwnTamCoh8uDk/egRpQ7siIc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gen2brain/beeep v0.0.0-20210529141713-5586760f0cc1 h1:Xh9mvwEmhbdXlRSsgn+N0zj/NqnKvpeqL08oKDHln2s=
 github.com/gen2brain/beeep v0.0.0-20210529141713-5586760f0cc1/go.mod h1:ElSskYZe3oM8kThaHGJ+kiN2yyUMVXMZ7WxF9QqLDS8=

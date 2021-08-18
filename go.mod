@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/bobertlo/go-mpg123 v0.0.0-20181204193349-1720ab305de3 // indirect
+	github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
 	github.com/gen2brain/beeep v0.0.0-20210529141713-5586760f0cc1
 	github.com/getlantern/appdir v0.0.0-20180320102544-7c0f9d241ea7 // indirect
 	github.com/getlantern/systray v1.1.0 // indirect

@@ -45,12 +45,13 @@ func main() {
 		panic(err)
 	}
 
-	m.SetDeamons(handler)
+	m.SetDeamons(eyesHandler)
 	m.Start()
 }
 
-func handler() {
+func eyesHandler() {
 	for {
+		time.Sleep(10 * time.Second)
 		wg := sync.WaitGroup{}
 		wg.Add(1)
 		go func() {
@@ -70,6 +71,5 @@ func handler() {
 			wg.Done()
 		}()
 		wg.Wait()
-		time.Sleep(10 * time.Second)
 	}
 }

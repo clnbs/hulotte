@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/clnbs/hulotte/internal/app/config"
 	"github.com/getlantern/systray"
 )
 
@@ -20,6 +21,30 @@ type SystrayMenu struct {
 type SystrayMenuConfig struct {
 	MenuLogo    string `json:"menu_logo"`
 	MenuTooltip string `json:"menu_tooltip"`
+}
+
+type menuItemNaming struct {
+	title   string
+	tooltip string
+}
+
+const (
+	quitItem = "menu"
+)
+
+var internationalMenuNaming = map[string]map[string]menuItemNaming{
+	config.FrenchISO639: {
+		quitItem: {
+			title:   "Quitter",
+			tooltip: "Quitte l'application",
+		},
+	},
+	config.EnglishIOS639: {
+		quitItem: {
+			title:   "Quit",
+			tooltip: "Quit the application",
+		},
+	},
 }
 
 func (sm *SystrayMenu) Initialize(path string) error {
@@ -80,7 +105,9 @@ func (sm *SystrayMenu) onReady() {
 	systray.SetTitle("")
 	systray.SetTooltip(sm.tooltip)
 
-	menuQuit := systray.AddMenuItem("Quitter", "Quitte l'application")
+	localeMenuItem := internationalMenuNaming[config.Locale()]
+
+	menuQuit := systray.AddMenuItem(localeMenuItem[quitItem].title, localeMenuItem[quitItem].tooltip)
 	go func() {
 		<-menuQuit.ClickedCh
 		systray.Quit()

@@ -22,13 +22,3 @@ func GetConfigDirPath() (string, error) {
 	}
 	return homeDir + "/.hulotte/", nil
 }
-
-func WriteFile(data []byte, path string) error {
-	// TODO thumbs
-	return nil
-}
-
-func CreateDir(path string) error {
-	// TODO thumbs
-	return nil
-}
