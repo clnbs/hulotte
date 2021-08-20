@@ -29,7 +29,8 @@ type menuItemNaming struct {
 }
 
 const (
-	quitItem = "menu"
+	quitItem         = "menu"
+	muteItemCheckbox = "mute"
 )
 
 var internationalMenuNaming = map[string]map[string]menuItemNaming{
@@ -38,11 +39,19 @@ var internationalMenuNaming = map[string]map[string]menuItemNaming{
 			title:   "Quitter",
 			tooltip: "Quitte l'application",
 		},
+		muteItemCheckbox: {
+			title:   "Sourdine",
+			tooltip: "Coupe le son des notifications",
+		},
 	},
 	config.EnglishIOS639: {
 		quitItem: {
 			title:   "Quit",
 			tooltip: "Quit the application",
+		},
+		muteItemCheckbox: {
+			title:   "Mute",
+			tooltip: "Mute notifications",
 		},
 	},
 }
@@ -107,6 +116,8 @@ func (sm *SystrayMenu) onReady() {
 
 	localeMenuItem := internationalMenuNaming[config.Locale()]
 
+	muteCheck := systray.AddMenuItemCheckbox(localeMenuItem[muteItemCheckbox].title, localeMenuItem[muteItemCheckbox].tooltip, false)
+	systray.AddSeparator()
 	menuQuit := systray.AddMenuItem(localeMenuItem[quitItem].title, localeMenuItem[quitItem].tooltip)
 	go func() {
 		<-menuQuit.ClickedCh
@@ -115,6 +126,19 @@ func (sm *SystrayMenu) onReady() {
 
 	for _, h := range sm.handlers {
 		go h()
+	}
+
+	for {
+		select {
+		case <-muteCheck.ClickedCh:
+			if muteCheck.Checked() {
+				muteCheck.Uncheck()
+				config.SetMute(false)
+			} else {
+				muteCheck.Check()
+				config.SetMute(true)
+			}
+		}
 	}
 
 	menuQuit.SetIcon(sm.logo)

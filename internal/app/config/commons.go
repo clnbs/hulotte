@@ -8,12 +8,12 @@ import (
 )
 
 type ConfigFile struct {
-	NotifyTitle   string `json:"notify_title"`
-	NotifyMessage string `json:"notify_message"`
-	NotifyLogo    string `json:"notify_logo"`
-	AudioSound    string `json:"audio_sound"`
-	MenuLogo      string `json:"menu_logo"`
-	MenuTooltip   string `json:"menu_tooltip"`
+	NotifyTitle string `json:"notify_title"`
+	NotifyLogo  string `json:"notify_logo"`
+	AudioSound  string `json:"audio_sound"`
+	AudioMute   bool   `json:"audio_mute"`
+	MenuLogo    string `json:"menu_logo"`
+	MenuTooltip string `json:"menu_tooltip"`
 }
 
 const (
@@ -22,36 +22,56 @@ const (
 )
 
 var locale string
+var audioMute bool
 
 var defaultConfigFile = map[string]ConfigFile{
 	FrenchISO639: {
-		NotifyTitle:   "Hulotte",
-		NotifyMessage: "Regardez un point à plus de 20 mètres pendant 20 secondes",
-		NotifyLogo:    "logo.png",
-		AudioSound:    "sound.mp3",
-		MenuLogo:      "logo.png",
-		MenuTooltip:   "Hulotte - L'ami des yeux",
+		NotifyTitle: "Hulotte",
+		NotifyLogo:  "logo.png",
+		AudioSound:  "sound.mp3",
+		MenuLogo:    "logo.png",
+		MenuTooltip: "Hulotte - L'ami des yeux",
 	},
 	EnglishIOS639: {
-		NotifyTitle:   "Hulotte",
-		NotifyMessage: "Look at a point at least 20 meters far for 20 seconds",
-		NotifyLogo:    "logo.png",
-		AudioSound:    "sound.mp3",
-		MenuLogo:      "logo.png",
-		MenuTooltip:   "Hulotte - The friend of the eyes",
+		NotifyTitle: "Hulotte",
+		NotifyLogo:  "logo.png",
+		AudioSound:  "sound.mp3",
+		MenuLogo:    "logo.png",
+		MenuTooltip: "Hulotte - The friend of the eyes",
 	},
 }
 
 func init() {
+	configPath, err := GetConfigFilePath()
+	if err != nil {
+		panic(err)
+	}
+	audioMute, err = loadAudioMuteConfig(configPath)
+	if err != nil {
+		panic(err)
+	}
+
 	userLocale, err := jibber_jabber.DetectLanguage()
 	if err != nil {
 		panic(err)
+	}
+	if userLocale != "en" && userLocale != "fr" {
+		locale = "en"
+		return
 	}
 	locale = userLocale
 }
 
 func Locale() string {
 	return locale
+}
+
+func Mute() bool {
+	return audioMute
+}
+
+func SetMute(set bool) {
+	audioMute = set
 }
 
 func GenerateDefaultConfigFile() ([]byte, error) {
@@ -77,4 +97,19 @@ func CreateDir(path string) error {
 		return err
 	}
 	return nil
+}
+
+func loadAudioMuteConfig(path string) (bool, error) {
+	configData, err := os.ReadFile(path)
+	if err != nil {
+		return false, err
+	}
+
+	config := &ConfigFile{}
+	err = json.Unmarshal(configData, config)
+	if err != nil {
+		return false, err
+	}
+
+	return config.AudioMute, nil
 }

@@ -3,22 +3,21 @@
 package config
 
 import (
-	"errors"
 	"os"
 )
 
 func GetConfigFilePath() (string, error) {
-	homeDir := os.Getenv("HOME")
-	if homeDir == "" {
-		return "", errors.New("unsupported linux distribution")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
 	}
 	return homeDir + "/.hulotte/config.json", nil
 }
 
 func GetConfigDirPath() (string, error) {
-	homeDir := os.Getenv("HOME")
-	if homeDir == "" {
-		return "", errors.New("unsupported linux distribution")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
 	}
 	return homeDir + "/.hulotte/", nil
 }

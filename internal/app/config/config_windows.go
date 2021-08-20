@@ -3,11 +3,18 @@
 package config
 
 func GetConfigFilePath() (string, error) {
-	// TODO thumbs
-	return "", nil
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return configDir + "\\hulotte\\config.json", nil
 }
 
 func GetConfigDirPath() (string, error) {
-	// TODO thumbs
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return configDir + "\\hulotte", nil
 	return "", nil
 }

@@ -45,7 +45,7 @@ func main() {
 		panic(err)
 	}
 
-	m.SetDeamons(eyesHandler)
+	m.SetDeamons(eyesHandler, walkHandler)
 	m.Start()
 }
 
@@ -53,22 +53,50 @@ func eyesHandler() {
 	for {
 		time.Sleep(10 * time.Second)
 		wg := sync.WaitGroup{}
-		wg.Add(1)
 		go func() {
-			err := notifyer.Trigger()
+			wg.Add(1)
+			defer wg.Done()
+			err := notifyer.Trigger(notify.EyesMessage)
 			if err != nil {
 				panic(err)
 			}
-			wg.Done()
 		}()
 
-		wg.Add(1)
 		go func() {
+			wg.Add(1)
+			defer wg.Done()
+			if config.Mute() {
+				return
+			}
 			err := soundPlayer.Trigger()
 			if err != nil {
 				panic(err)
 			}
-			wg.Done()
+		}()
+		wg.Wait()
+	}
+}
+
+func walkHandler() {
+	for {
+		time.Sleep(60 * time.Minute)
+		wg := sync.WaitGroup{}
+		go func() {
+			wg.Add(1)
+			defer wg.Done()
+			err := notifyer.Trigger(notify.WalkMessage)
+			if err != nil {
+				panic(err)
+			}
+		}()
+
+		go func() {
+			wg.Add(1)
+			defer wg.Done()
+			err := soundPlayer.Trigger()
+			if err != nil {
+				panic(err)
+			}
 		}()
 		wg.Wait()
 	}

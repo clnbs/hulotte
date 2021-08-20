@@ -1,12 +1,31 @@
 package main
 
-import "github.com/clnbs/hulotte/internal/app/config"
+import (
+	"os"
+
+	"github.com/clnbs/hulotte/internal/app/config"
+)
 
 func main() {
 	err := createConfig()
 	if err != nil {
 		panic(err)
 	}
+}
+
+func checkConfigPresence() (bool, error) {
+	configDirPath, err := config.GetConfigDirPath()
+	if err != nil {
+		return false, err
+	}
+	_, err = os.Stat(configDirPath)
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func createConfig() error {
