@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/clnbs/hulotte/internal/app/helper"
 	"github.com/cloudfoundry/jibber_jabber"
 )
 
@@ -42,7 +43,7 @@ var defaultConfigFile = map[string]ConfigFile{
 }
 
 func init() {
-	configPath, err := GetConfigFilePath()
+	configPath, err := ConfigFilePath()
 	if err != nil {
 		panic(err)
 	}
@@ -74,29 +75,47 @@ func SetMute(set bool) {
 	audioMute = set
 }
 
-func GenerateDefaultConfigFile() ([]byte, error) {
+func DoesConfigExists() (bool, error) {
+	configDirPath, err := ConfigDirPath()
+	if err != nil {
+		return false, err
+	}
+	return helper.DoesFileExsist(configDirPath)
+}
+
+func CreateConfig() error {
+	configDirPath, err := ConfigDirPath()
+	if err != nil {
+		return err
+	}
+	err = helper.CreateDir(configDirPath)
+	if err != nil {
+		return err
+	}
+
+	configFileData, err := generateDefaultConfigFile()
+	if err != nil {
+		return err
+	}
+
+	configFilePath, err := ConfigFilePath()
+	if err != nil {
+		return err
+	}
+	err = helper.WriteFile(configFileData, configFilePath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func generateDefaultConfigFile() ([]byte, error) {
 	interConfig := defaultConfigFile[locale]
 	configData, err := json.Marshal(&interConfig)
 	if err != nil {
 		return nil, err
 	}
 	return configData, nil
-}
-
-func WriteFile(data []byte, path string) error {
-	err := os.WriteFile(path, data, 0755)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func CreateDir(path string) error {
-	err := os.Mkdir(path, 0755)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func loadAudioMuteConfig(path string) (bool, error) {

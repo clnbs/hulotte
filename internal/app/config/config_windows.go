@@ -2,7 +2,11 @@
 
 package config
 
-func GetConfigFilePath() (string, error) {
+import (
+	"os"
+)
+
+func ConfigFilePath() (string, error) {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
@@ -10,7 +14,23 @@ func GetConfigFilePath() (string, error) {
 	return configDir + "\\hulotte\\config.json", nil
 }
 
-func GetConfigDirPath() (string, error) {
+func LogoPath() (string, error) {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return configDir + "\\hulotte\\logo.png", nil
+}
+
+func SoundPath() (string, error) {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return configDir + "\\hulotte\\sound.mp3", nil
+}
+
+func ConfigDirPath() (string, error) {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err

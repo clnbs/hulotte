@@ -16,7 +16,7 @@ var soundPlayer sound.SoundPlayer
 func init() {
 	var err error
 
-	configPath, err := config.GetConfigFilePath()
+	configPath, err := config.ConfigFilePath()
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +35,7 @@ func init() {
 }
 
 func main() {
-	configPath, err := config.GetConfigFilePath()
+	configPath, err := config.ConfigFilePath()
 	if err != nil {
 		panic(err)
 	}

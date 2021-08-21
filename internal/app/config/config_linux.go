@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func GetConfigFilePath() (string, error) {
+func ConfigFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -14,7 +14,23 @@ func GetConfigFilePath() (string, error) {
 	return homeDir + "/.hulotte/config.json", nil
 }
 
-func GetConfigDirPath() (string, error) {
+func LogoPath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return homeDir + "/.hulotte/logo.png", nil
+}
+
+func SoundPath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return homeDir + "/.hulotte/sound.mp3", nil
+}
+
+func ConfigDirPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
