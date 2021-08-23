@@ -4,9 +4,19 @@ package installer
 
 import "github.com/clnbs/hulotte/internal/app/helper"
 
+const serviceFile = `[Unit]
+Description=Hulotte agent
+
+[Service]
+ExecStart=/usr/bin/hulotte
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutSec=0
+RestartSec=2
+Restart=always
+`
+
 func SetAutoStart() error {
-	// TODO thumbs
-	return nil
+	return helper.WriteFile([]byte(serviceFile), "/usr/lib/systemd/system/hullote.service")
 }
 
 func WriteHulotte(data []byte) error {

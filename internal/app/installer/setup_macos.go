@@ -19,11 +19,7 @@ func GetHullotePath() string {
 }
 
 func RegisterHulotte() error {
-	// TODO thumbs
+	// does nothing
+	// we don't need to register a program on macos systems
 	return nil
-}
-
-func DoesHulotteExists() (bool, error) {
-	// TODO thumb
-	return false, nil
 }
