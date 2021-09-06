@@ -1,0 +1,18 @@
+FROM golang:1-stretch AS builder
+WORKDIR /go/src/github.com/clnbs/hulotte
+RUN dpkg --add-architecture i386
+RUN apt update && apt upgrade -y && apt install -y zip \
+    build-essential gcc libgtk-3-dev libappindicator3-dev libgl1-mesa-dev libxrandr-dev libxcursor-dev libxi-dev libghc-x11-dev binutils-mingw-w64 mingw-w64 libx11-dev xorg-dev --install-recommends
+COPY . .
+RUN mkdir -p cmd/installer/content
+RUN zip -r cmd/installer/content/hulotte.zip assets 
+RUN go mod vendor
+RUN CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ GOOS=windows go build -a -ldflags "-H=windowsgui" -o assets/hulotte cmd/hulotte/main.go
+
+FROM golang:latest
+WORKDIR /go/src/github.com/clnbs/hulotte
+COPY --from=builder /go/src/github.com/clnbs/hulotte .
+RUN apt update && apt upgrade -y && apt install -y zip
+RUN rm cmd/installer/content/hulotte.zip
+RUN zip -r cmd/installer/content/hulotte.zip assets 
+RUN CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ GOOS=windows go build -o hulotte_installer_windows.exe cmd/installer/main.go

@@ -1,5 +1,3 @@
-// +build windows
-
 package installer
 
 import (
@@ -12,12 +10,12 @@ import (
 )
 
 func SetAutoStart() error {
-	userHome, err := os.userHome()
+	userHome, err := os.UserHomeDir()
 	if err != nil {
 		return err
 	}
 	autoStartFolder := "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu \\Programs\\Startup"
-	rootAutoStartFolder := fmt.Sprinft("%s%s", userHome, autoStartFolder)
+	rootAutoStartFolder := fmt.Sprintf("%s%s", userHome, autoStartFolder)
 	hulotteInstallationPath := "C:\\Program Files\\hulotte\\hulotte.exe"
 
 	return os.Symlink(hulotteInstallationPath, rootAutoStartFolder+"\\hulotte.exe")
@@ -31,7 +29,7 @@ func WriteHulotte(data []byte) error {
 	return helper.WriteBinary(data, "C:\\Program Files\\hulotte\\hulotte.exe")
 }
 
-func GetHullotePath() string {
+func GetHulottePath() string {
 	return "C:\\Program Files\\hulotte\\hulotte.exe"
 }
 
@@ -46,7 +44,7 @@ func RegisterHulotte() error {
 		return err
 	}
 
-	classesRootKey, err := registry.OpenKey(registry.CLASSES_ROOT, `Applications\hulotte.exe`, registry.WRITE)
+	_, err = registry.OpenKey(registry.CLASSES_ROOT, `Applications\hulotte.exe`, registry.WRITE)
 	if err != nil {
 		return err
 	}

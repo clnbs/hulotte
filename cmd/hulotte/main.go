@@ -51,7 +51,7 @@ func main() {
 
 func eyesHandler() {
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(20 * time.Minute)
 		wg := sync.WaitGroup{}
 		go func() {
 			wg.Add(1)

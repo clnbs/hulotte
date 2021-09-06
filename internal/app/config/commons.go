@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/clnbs/hulotte/internal/app/helper"
@@ -73,6 +74,22 @@ func Mute() bool {
 
 func SetMute(set bool) {
 	audioMute = set
+	configPath, _ := ConfigFilePath()
+	configData, err := os.ReadFile(configPath)
+	if err != nil {
+		return
+	}
+	config := ConfigFile{}
+	err = json.Unmarshal(configData, &config)
+	if err != nil {
+		return
+	}
+	config.AudioMute = set
+	configData, err = json.Marshal(config)
+	if err != nil {
+		return
+	}
+	_ = helper.WriteFile(configData, configPath)
 }
 
 func DoesConfigExists() (bool, error) {
@@ -88,29 +105,43 @@ func CreateConfig() error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Creating config dir in", configDirPath)
 	err = helper.CreateDir(configDirPath)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("Generating config file ...")
 	configFileData, err := generateDefaultConfigFile()
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("Done!")
 	configFilePath, err := ConfigFilePath()
 	if err != nil {
 		return err
 	}
+	fmt.Println("Writing config file at", configFilePath)
 	err = helper.WriteFile(configFileData, configFilePath)
 	if err != nil {
 		return err
 	}
+	fmt.Println("Done!")
 	return nil
 }
 
 func generateDefaultConfigFile() ([]byte, error) {
+	var err error
 	interConfig := defaultConfigFile[locale]
+	interConfig.AudioSound, err = SoundPath()
+	if err != nil {
+		return nil, err
+	}
+	interConfig.MenuLogo, err = LogoPath()
+	if err != nil {
+		return nil, err
+	}
+	interConfig.NotifyLogo = interConfig.MenuLogo
 	configData, err := json.Marshal(&interConfig)
 	if err != nil {
 		return nil, err
@@ -119,6 +150,13 @@ func generateDefaultConfigFile() ([]byte, error) {
 }
 
 func loadAudioMuteConfig(path string) (bool, error) {
+	configExists, err := DoesConfigExists()
+	if err != nil {
+		return false, err
+	}
+	if !configExists {
+		return true, nil
+	}
 	configData, err := os.ReadFile(path)
 	if err != nil {
 		return false, err

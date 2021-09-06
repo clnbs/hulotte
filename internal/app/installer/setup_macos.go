@@ -14,7 +14,7 @@ func WriteHulotte(data []byte) error {
 	return helper.WriteBinary(data, "/System/Library/LaunchAgents/hulotte")
 }
 
-func GetHullotePath() string {
+func GetHulottePath() string {
 	return "/System/Library/LaunchAgents/hulotte"
 }
 

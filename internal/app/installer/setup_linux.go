@@ -1,34 +1,43 @@
-// +build linux
-
 package installer
 
-import "github.com/clnbs/hulotte/internal/app/helper"
+import (
+	"fmt"
+	"os"
 
-const serviceFile = `[Unit]
-Description=Hulotte agent
+	"github.com/clnbs/hulotte/internal/app/helper"
+)
 
-[Service]
-ExecStart=/usr/bin/hulotte
-ExecReload=/bin/kill -s HUP $MAINPID
-TimeoutSec=0
-RestartSec=2
-Restart=always
+const autostartFile = `[Desktop Entry]
+Type=Application
+Name=Hulotte
+Exec=/usr/bin/hulotte
+StartupNotify=false
+Terminal=false
 `
 
 func SetAutoStart() error {
-	return helper.WriteFile([]byte(serviceFile), "/usr/lib/systemd/system/hullote.service")
+	autostartFilePath, err := os.UserConfigDir()
+	if err != nil {
+		return err
+	}
+	autostartFilePath += "/autostart/hulotte.desktop "
+	fmt.Println("Writing service file for Linux in", autostartFilePath)
+
+	return helper.SUDOWriteFile([]byte(autostartFile), autostartFilePath)
 }
 
 func WriteHulotte(data []byte) error {
-	return helper.WriteBinary(data, "/usr/bin/hulotte")
+	fmt.Println("Writing Hulotte binary for Linux in /usr/bin/hulotte")
+	return helper.SUDOWriteBinary(data, "/usr/bin/hulotte")
 }
 
-func GetHullotePath() string {
+func GetHulottePath() string {
 	return "/usr/bin/hulotte"
 }
 
 func RegisterHulotte() error {
 	// does nothing
 	// we don't need to register a program on linux systems
+	fmt.Println("We don't need to register Hulotte on Linux systems :-)")
 	return nil
 }

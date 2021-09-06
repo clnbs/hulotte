@@ -5,6 +5,6 @@ import (
 )
 
 func DoesHulotteExists() (bool, error) {
-	path := GetHullotePath()
+	path := GetHulottePath()
 	return helper.DoesFileExsist(path)
 }

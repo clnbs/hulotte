@@ -1,20 +1,19 @@
 package sound
 
 import (
-	"bytes"
-	"encoding/binary"
 	"encoding/json"
 	"io/ioutil"
+	"time"
 
-	"github.com/bobertlo/go-mpg123/mpg123"
-	"github.com/gordonklaus/portaudio"
+	"github.com/hajimehoshi/oto"
+	"github.com/tosone/minimp3"
 )
 
 type Audio struct {
-	decoder   *mpg123.Decoder
+	decoder   *minimp3.Decoder
 	soundPath string
-	rate      int64
-	channels  int
+	data      []byte
+	ctx       *oto.Context
 }
 
 type AudioConfig struct {
@@ -32,8 +31,17 @@ func (a *Audio) Initialize(path string) error {
 	}
 	a.soundPath = config.SoundPath
 
-	a.decoder, err = mpg123.NewDecoder("")
+	a.decoder = &minimp3.Decoder{}
+
+	var file []byte
+	if file, err = ioutil.ReadFile(a.soundPath); err != nil {
+		return err
+	}
+	a.decoder, a.data, err = minimp3.DecodeFull(file)
 	if err != nil {
+		return err
+	}
+	if a.ctx, err = oto.NewContext(a.decoder.SampleRate, a.decoder.Channels, 2, 1024); err != nil {
 		return err
 	}
 
@@ -41,52 +49,14 @@ func (a *Audio) Initialize(path string) error {
 }
 
 func (a *Audio) Trigger() error {
-	err := a.decoder.Open(a.soundPath)
-	if err != nil {
+	var player = a.ctx.NewPlayer()
+	player.Write(a.data)
+
+	<-time.After(time.Second)
+
+	a.decoder.Close()
+	if err := player.Close(); err != nil {
 		return err
-	}
-
-	// get audio format information
-	a.rate, a.channels, _ = a.decoder.GetFormat()
-
-	// make sure output format does not change
-	a.decoder.FormatNone()
-	a.decoder.Format(a.rate, a.channels, mpg123.ENC_SIGNED_16)
-
-	portaudio.Initialize()
-	defer portaudio.Terminate()
-	out := make([]int16, 8192)
-
-	stream, err := portaudio.OpenDefaultStream(0, a.channels, float64(a.rate), len(out), &out)
-	if err != nil {
-		return err
-	}
-	defer stream.Close()
-
-	err = stream.Start()
-	if err != nil {
-		return err
-	}
-	defer stream.Stop()
-
-	for {
-		audio := make([]byte, 2*len(out))
-		_, err = a.decoder.Read(audio)
-		if err == mpg123.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-
-		err = binary.Read(bytes.NewBuffer(audio), binary.LittleEndian, out)
-		if err != nil {
-			return err
-		}
-		err = stream.Write()
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

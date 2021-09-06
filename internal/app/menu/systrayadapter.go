@@ -123,6 +123,10 @@ func (sm *SystrayMenu) onReady() {
 		<-menuQuit.ClickedCh
 		systray.Quit()
 	}()
+	menuQuit.SetIcon(sm.logo)
+	if config.Mute() {
+		muteCheck.Check()
+	}
 
 	for _, h := range sm.handlers {
 		go h()
@@ -141,5 +145,4 @@ func (sm *SystrayMenu) onReady() {
 		}
 	}
 
-	menuQuit.SetIcon(sm.logo)
 }

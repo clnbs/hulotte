@@ -3,6 +3,10 @@ package main
 import (
 	"archive/zip"
 	"bytes"
+	_ "embed"
+	"errors"
+	"fmt"
+	"io/fs"
 
 	"github.com/clnbs/hulotte/internal/app/config"
 	"github.com/clnbs/hulotte/internal/app/helper"
@@ -13,57 +17,70 @@ import (
 var hulotteContent []byte
 
 func main() {
-	hulotteData, soundData, logoData, err := extractHulloteZip()
+	fmt.Println("extracting zip ...")
+	hulotteData, soundData, logoData, err := extractHulotteZip()
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println("Done! \nChecking if Hulotte is already installed ..")
 
 	isHulotteInstalled, err := installer.DoesHulotteExists()
 	if err != nil {
 		panic(err)
 	}
 	if !isHulotteInstalled {
-
-		if err != nil {
-			panic(err)
-		}
-
+		fmt.Println("Hulotte is not installed! Install ongoing ...")
 		err = installHulotte(hulotteData)
 		if err != nil {
 			panic(err)
 		}
+
+		fmt.Println("Done!")
+	} else {
+		fmt.Println("Hulotte is already installed.")
 	}
 
+	fmt.Println("Checking if config exists ...")
 	isConfigExists, err := config.DoesConfigExists()
 	if err != nil {
 		panic(err)
 	}
 	if !isConfigExists {
+		fmt.Println("Config does not exists! Install ongoing ...")
 		err = config.CreateConfig()
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println("Done!\nInstalling assets ...")
 		err = installAssets(soundData, logoData)
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println("Done!")
+	} else {
+		fmt.Println("Config is already installed, leaving ...")
 	}
 }
 
 func installHulotte(hulotte []byte) error {
 	// TODO get the binary
+	fmt.Println("Writing Hulotte binary ...")
 	err := installer.WriteHulotte(hulotte)
 	if err != nil {
 		return err
 	}
+	fmt.Println("Done!\nRegistering Hulotte ...")
 	err = installer.RegisterHulotte()
 	if err != nil {
 		return err
 	}
+	fmt.Println("Done!\nSetting up autostart ...")
 	err = installer.SetAutoStart()
 	if err != nil {
 		return err
 	}
+	fmt.Println("Done!")
 	return nil
 }
 
@@ -72,6 +89,7 @@ func installAssets(sound []byte, logo []byte) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Writing logo at", logoPath)
 	err = helper.WriteFile(logo, logoPath)
 	if err != nil {
 		return err
@@ -81,40 +99,42 @@ func installAssets(sound []byte, logo []byte) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Writting sound file at", soundPath)
 	return helper.WriteFile(sound, soundPath)
 }
 
-func extractHulloteZip() (hulotte []byte, sound []byte, logo []byte, err error) {
+func extractHulotteZip() ([]byte, []byte, []byte, error) {
+	var hulotte, sound, logo []byte
 	reader := bytes.NewReader(hulotteContent)
 	zipReader, err := zip.NewReader(reader, reader.Size())
 	if err != nil {
-		return
-	}
-	hulloteFile, err := zipReader.Open("hullote")
-	if err != nil {
-		return
+		return nil, nil, nil, err
 	}
 
-	soundFile, err := zipReader.Open("sound.mp3")
+	hulotte, err = fs.ReadFile(zipReader, "assets/hulotte")
 	if err != nil {
-		return
+		return nil, nil, nil, err
 	}
 
-	logoFile, err := zipReader.Open("logo.png")
+	sound, err = fs.ReadFile(zipReader, "assets/sound.mp3")
 	if err != nil {
-		return
+		return nil, nil, nil, err
 	}
 
-	_, err = hulloteFile.Read(hulotte)
+	logo, err = fs.ReadFile(zipReader, "assets/logo.png")
 	if err != nil {
-		return
+		return nil, nil, nil, err
 	}
 
-	_, err = soundFile.Read(sound)
-	if err != nil {
-		return
+	if len(hulotte) == 0 {
+		return nil, nil, nil, errors.New("Hulotte data is empty")
 	}
 
-	_, err = logoFile.Read(logo)
-	return
+	if len(sound) == 0 {
+		return nil, nil, nil, errors.New("sound data is empty")
+	}
+	if len(logo) == 0 {
+		return nil, nil, nil, errors.New("logo data is empty")
+	}
+	return hulotte, sound, logo, nil
 }
